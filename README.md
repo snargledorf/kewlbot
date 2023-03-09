@@ -1,10 +1,10 @@
 # doggobot
 
-Read the full tutorial in my [medium](https://medium.com/free-code-camp/learn-to-build-your-first-bot-in-telegram-with-python-4c99526765e4?source=friends_link&sk=b3681100973dda5ee1a98c93e240c994).
+Check the bot in [here](http://telegram.me/goodestdoggobot).
 
-Check the bot in [here](http://telegram.me/picdoggobot).
-
-This bot will send you a random dog image when you type `/bop` command.
+## Supported commands:
+- `/boop` responds with a random dog picture or video
+- `/tips` responds with a random tip from /r/LifeProTips or /r/YouShouldKnow
 
 # Requirements
 - python 3
