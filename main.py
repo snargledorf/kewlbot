@@ -6,6 +6,7 @@ import re
 import my_secrets
 from life_pro_tips import get_random_lpt
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 image_extensions = ['jpg','jpeg','png']
 video_extensions = ['mp4','gif']
@@ -32,28 +33,36 @@ def try_take_ticket():
     current_tickets_count+=1
     return True
 
-async def get_url():
+async def get_random_dog_api_url():
     async with aiohttp.ClientSession() as session:
         async with session.get('https://random.dog/woof.json') as response:
             respJson = await response.json();
             return respJson['url']
 
-async def get_media_url():
+async def get_random_dog_url():
     file_extension = ''
     while file_extension not in image_extensions and file_extension not in video_extensions:
-        url = await get_url()
+        url = await get_random_dog_api_url()
         file_extension = get_file_extension(url)
     return url
 
 def get_file_extension(url):
     return re.search("([^.]*)$",url).group(1).lower()
 
+async def get_random_horse_picture_url():
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://generatorfun.com/random-horse-image') as response:
+            htmltext = await response.read()
+            soup = BeautifulSoup(htmltext, 'html.parser')
+            horse_image_relative_url = soup.select_one('body > main > div > img')['src']
+            return "https://generatorfun.com/" + horse_image_relative_url
+
 async def boop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if try_take_ticket() is False:
         await send_rate_limit_response(update, context)
         return
 
-    url = await get_media_url()
+    url = await get_random_dog_api_url()
     chat_id = update.effective_chat.id
     
     file_extension = get_file_extension(url)
@@ -78,6 +87,11 @@ async def tips(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = message[:977] + '\.\.\.'
 
     await context.bot.send_message(chat_id=update.effective_chat.id, parse_mode='MarkdownV2', text=message)
+
+async def carrot(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    horse_image_url = await get_random_horse_picture_url()
+    
+    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=horse_image_url)
                                    
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! If you /boop me, I'll send you a cute doggo!")
@@ -110,6 +124,9 @@ if __name__ == '__main__':
 
     boop_handler = CommandHandler('boop', boop)
     application.add_handler(boop_handler)
+
+    carrot_handler = CommandHandler('carrot', carrot)
+    application.add_handler(carrot_handler)
 
     tits_handler = CommandHandler('tips', tips)
     application.add_handler(tits_handler)
