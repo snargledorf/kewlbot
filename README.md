@@ -4,6 +4,7 @@ Check the bot in [here](http://telegram.me/goodestdoggobot).
 
 ## Supported commands:
 - `/boop` responds with a random dog picture or video
+- `/carrot` responds with a random horse picture
 - `/tips` responds with a random tip from /r/LifeProTips or /r/YouShouldKnow
 
 # Requirements
