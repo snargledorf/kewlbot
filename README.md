@@ -6,6 +6,7 @@ Check the bot in [here](http://telegram.me/goodestdoggobot).
 - `/boop` responds with a random dog picture or video
 - `/carrot` responds with a random horse picture
 - `/tips` responds with a random tip from /r/LifeProTips or /r/YouShouldKnow
+- `/javi` responds with a smiling javi https://media.tenor.com/iEaaKez7nDcAAAAC/smiling-javi-gutierrez.gif
 
 # Requirements
 - python 3
