@@ -116,19 +116,16 @@ async def send_rate_limit_response(update: Update, context: ContextTypes.DEFAULT
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Woah, slow down! You can use me again in {}.".format(time_left_str))
 
+commands = [
+    CommandHandler('start', start),
+    CommandHandler('boop', boop),
+    CommandHandler('carrot', carrot),
+    CommandHandler('tips', tips)
+]
+
 if __name__ == '__main__':
     application = ApplicationBuilder().token(my_secrets.telegram_bot_token).build()
     
-    start_handler = CommandHandler('start', start)
-    application.add_handler(start_handler)
-
-    boop_handler = CommandHandler('boop', boop)
-    application.add_handler(boop_handler)
-
-    carrot_handler = CommandHandler('carrot', carrot)
-    application.add_handler(carrot_handler)
-
-    tits_handler = CommandHandler('tips', tips)
-    application.add_handler(tits_handler)
+    application.add_handlers(commands)
     
     application.run_polling()
