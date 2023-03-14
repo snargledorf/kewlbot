@@ -92,6 +92,9 @@ async def carrot(update: Update, context: ContextTypes.DEFAULT_TYPE):
     horse_image_url = await get_random_horse_picture_url()
     
     await context.bot.send_photo(chat_id=update.effective_chat.id, photo=horse_image_url)
+
+async def javi(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        await context.bot.send_video(chat_id=update.effective_chat.id, video='https://media.tenor.com/iEaaKez7nDcAAAAC/smiling-javi-gutierrez.gif')
                                    
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! If you /boop me, I'll send you a cute doggo!")
@@ -120,7 +123,8 @@ commands = [
     CommandHandler('start', start),
     CommandHandler('boop', boop),
     CommandHandler('carrot', carrot),
-    CommandHandler('tips', tips)
+    CommandHandler('tips', tips),
+    CommandHandler('javi', javi)
 ]
 
 if __name__ == '__main__':
