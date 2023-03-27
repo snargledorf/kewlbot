@@ -1,6 +1,6 @@
-# doggobot
+# kewlbot
 
-Check the bot in [here](http://telegram.me/goodestdoggobot).
+Check the bot in [here](https://t.me/kewlcidsbot).
 
 ## Supported commands:
 - `/boop` responds with a random dog picture or video
