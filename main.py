@@ -2,7 +2,7 @@ import os
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, ApplicationHandlerStop
-from telegram.ext.filters import Caption, PHOTO, VIDEO
+from telegram.ext.filters import Caption, PHOTO, VIDEO, Regex
 from telegram.helpers import escape_markdown
 
 import aiohttp
@@ -97,6 +97,9 @@ async def javi(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def midge(update: Update, context: ContextTypes.DEFAULT_TYPE):   
     await send_random_media(midge_api, update, context)
+
+async def hahaa(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await send_random_media(hahaa_api, update, context)
                                    
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! If you /boop me, I'll send you a cute doggo!")
@@ -163,13 +166,15 @@ commands = [
     CommandHandler('carrot', carrot),
     CommandHandler('tips', tips),
     CommandHandler('javi', javi),
-    CommandHandler('midge', midge)
+    CommandHandler('midge', midge),
+    MessageHandler(Regex(r'[Hh]a haa+\!?'), hahaa)
 ]
 
 boop_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_dog_url), MediaApi.LocalFileMediaRetriever('boop')])
 carrot_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_horse_picture_url, 15), MediaApi.LocalFileMediaRetriever('carrot')])
 javi_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(lambda: 'https://media.tenor.com/iEaaKez7nDcAAAAC/smiling-javi-gutierrez.gif', 0), MediaApi.LocalFileMediaRetriever('javi')])
 midge_api = MediaApi.LocalFileMediaRetriever('midge')
+hahaa_api = MediaApi.LocalFileMediaRetriever('hahaa')
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(my_secrets.telegram_bot_token).build()
