@@ -33,10 +33,13 @@ class MediaRetriever():
 
         recent_media_count = self.recent_media_max
         if not self.api_coroutine:
-            recent_media_count = min(self.get_command_local_file_count()/self.recent_media_max, recent_media_count)
+            recent_media_count = self.get_command_local_file_count() / min(self.get_command_local_file_count(), recent_media_count)
 
-        while len(self.recent_media) > recent_media_count:
-            self.recent_media.pop()
+        if recent_media_count > 0:
+            while len(self.recent_media) >= recent_media_count:
+                self.recent_media.pop()
+        else:
+            self.recent_media.clear()
 
         while file in self.recent_media:
             get_media_method = self.determine_get_media_method()
