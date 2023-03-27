@@ -8,7 +8,7 @@ from telegram.ext import ContextTypes, ApplicationHandlerStop
 class MediaRetriever():
     
     image_extensions = ['.jpg','.jpeg','.png']
-    video_extensions = ['.mp4','.gif']
+    video_extensions = ['.mp4','.gif', '.mov']
 
     recent_media = []
 
