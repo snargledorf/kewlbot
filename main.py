@@ -24,7 +24,7 @@ current_term_start_time = datetime.now()
 current_tickets_count = 0
 
 def is_debug_mode():
-    return os.environ['VSCODE_DEBUG_MODE'] == "true";
+    return 'VSCODE_DEBUG_MODE' in os.environ and os.environ['VSCODE_DEBUG_MODE'] == "true";
 
 def try_take_ticket():
     global current_term_start_time, current_tickets_count
