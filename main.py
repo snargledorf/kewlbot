@@ -9,13 +9,13 @@ import aiohttp
 
 import my_secrets
 from life_pro_tips import get_random_lpt
-from MediaApi import MediaRetriever
+import MediaApi
 
 from datetime import datetime
 from bs4 import BeautifulSoup
 
 image_extensions = ['.jpg','.jpeg','.png']
-video_extensions = ['.mp4','.gif']
+video_extensions = ['.mp4','.gif', '.mov']
 
 # (Basic) Rate limiting
 max_tickets_per_term = 10
@@ -23,8 +23,14 @@ term_length_minutes = 10
 current_term_start_time = datetime.now()
 current_tickets_count = 0
 
+def is_debug_mode():
+    return os.environ['VSCODE_DEBUG_MODE'] == "true";
+
 def try_take_ticket():
     global current_term_start_time, current_tickets_count
+
+    if is_debug_mode():
+        return True
 
     # Check if we have moved on to the next term
     current_term_length = datetime.now() - current_term_start_time
@@ -53,7 +59,7 @@ async def get_random_dog_url():
     return url
 
 def get_file_extension(url):
-    return os.path.splitext(url)[-1]
+    return os.path.splitext(url)[-1].lower()
 
 async def get_random_horse_picture_url():
     async with aiohttp.ClientSession() as session:
@@ -62,13 +68,6 @@ async def get_random_horse_picture_url():
             soup = BeautifulSoup(htmltext, 'html.parser')
             horse_image_relative_url = soup.select_one('body > main > div > img')['src']
             return "https://generatorfun.com/" + horse_image_relative_url
-
-async def boop(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if try_take_ticket() is False:
-        await send_rate_limit_response(update, context)
-        return
-    
-    await boop_api.send_random_media_for_command(update, context)
 
 async def tips(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if try_take_ticket() is False:
@@ -87,38 +86,29 @@ async def tips(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_message(chat_id=update.effective_chat.id, parse_mode='MarkdownV2', text=message)
 
-async def carrot(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if try_take_ticket() is False:
-        await send_rate_limit_response(update, context)
-        return
-    
-    await carrot_api.send_random_media_for_command(update, context)
+async def boop(update: Update, context: ContextTypes.DEFAULT_TYPE):   
+    await send_random_media(boop_api, update, context)
 
-async def javi(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if try_take_ticket() is False:
-        await send_rate_limit_response(update, context)
-        return
-    
-    await javi_api.send_random_media_for_command(update, context)
+async def carrot(update: Update, context: ContextTypes.DEFAULT_TYPE):   
+    await send_random_media(carrot_api, update, context)
 
-async def midge(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if try_take_ticket() is False:
-        await send_rate_limit_response(update, context)
-        return
-    
-    await midge_api.send_random_media_for_command(update, context)
+async def javi(update: Update, context: ContextTypes.DEFAULT_TYPE):    
+    await send_random_media(javi_api, update, context)
+
+async def midge(update: Update, context: ContextTypes.DEFAULT_TYPE):   
+    await send_random_media(midge_api, update, context)
                                    
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! If you /boop me, I'll send you a cute doggo!")
 
 async def addCommandMedia(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    file=''
+    file=None
     if update.message.photo:
         file = await update.message.photo[-1].get_file()
     else:
         file = await update.message.video.get_file()
 
-    download_folder_path = get_media_folder_path(update.message.caption[1:])
+    download_folder_path = 'media' + update.message.caption + '/'
     if not os.path.exists(download_folder_path):
         os.mkdir(download_folder_path)
 
@@ -127,10 +117,24 @@ async def addCommandMedia(update: Update, context: ContextTypes.DEFAULT_TYPE):
         raise ApplicationHandlerStop()
 
     await file.download_to_drive(download_file_path)
+
+    await update.message.reply_text('New media added for ' + update.message.caption)
     raise ApplicationHandlerStop()
 
-def get_media_folder_path(command_name):
-    return 'media/' + command_name + '/'
+async def send_random_media(media_retriever: MediaApi.MediaRetriever, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if try_take_ticket() is False:
+        await send_rate_limit_response(update, context)
+        return
+    
+    file = await media_retriever.get_random_media()
+
+    file_extension = get_file_extension(file)   
+    chat_id = update.effective_chat.id
+
+    if file_extension in image_extensions:
+        await context.bot.send_photo(chat_id=chat_id, photo=file)
+    elif file_extension in video_extensions:
+        await context.bot.send_video(chat_id=chat_id, video=file)
 
 async def send_rate_limit_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     current_term_length = datetime.now() - current_term_start_time
@@ -162,10 +166,10 @@ commands = [
     CommandHandler('midge', midge)
 ]
 
-boop_api = MediaRetriever('boop', get_random_dog_url)
-carrot_api = MediaRetriever('carrot', get_random_horse_picture_url)
-javi_api = MediaRetriever('javi', lambda: 'https://media.tenor.com/iEaaKez7nDcAAAAC/smiling-javi-gutierrez.gif', 0)
-midge_api = MediaRetriever('midge')
+boop_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_dog_url), MediaApi.LocalFileMediaRetriever('boop')])
+carrot_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_horse_picture_url, 15), MediaApi.LocalFileMediaRetriever('carrot')])
+javi_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(lambda: 'https://media.tenor.com/iEaaKez7nDcAAAAC/smiling-javi-gutierrez.gif', 0), MediaApi.LocalFileMediaRetriever('javi')])
+midge_api = MediaApi.LocalFileMediaRetriever('midge')
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(my_secrets.telegram_bot_token).build()
