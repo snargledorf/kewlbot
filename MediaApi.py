@@ -4,83 +4,95 @@ import asyncio
 
 from telegram import Update
 from telegram.ext import ContextTypes, ApplicationHandlerStop
-
-class MediaRetriever():
     
-    image_extensions = ['.jpg','.jpeg','.png']
-    video_extensions = ['.mp4','.gif', '.mov']
+image_extensions = ['.jpg','.jpeg','.png']
+video_extensions = ['.mp4','.gif', '.mov']
 
-    recent_media = []
+class MediaRetriever:
 
-    def __init__(self, command_name, api_coroutine=None, recent_media_max=5):
-        self.command_name = command_name
-        self.api_coroutine = api_coroutine
-        self.recent_media_max = recent_media_max
+    def __init__(self) -> None:
+        self.recent_media = []
 
-    async def send_random_media_for_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        file = await self.get_random_media_for_command()
-        file_extension = self.get_file_extension(file)    
-        chat_id = update.effective_chat.id
+    async def get_random_media(self) -> str:
+        file = await self._get_random_media()
 
-        if file_extension in self.image_extensions:
-            await context.bot.send_photo(chat_id=chat_id, photo=file)
-        elif file_extension in self.video_extensions:
-            await context.bot.send_video(chat_id=chat_id, video=file)
-
-    async def get_random_media_for_command(self):
-        get_media_method = self.determine_get_media_method()
-        file = await get_media_method()
-
-        recent_media_count = self.recent_media_max
-        if not self.api_coroutine:
-            recent_media_count = self.get_command_local_file_count() / min(self.get_command_local_file_count(), recent_media_count)
-
-        if recent_media_count > 0:
-            while len(self.recent_media) >= recent_media_count:
-                self.recent_media.pop()
-        else:
-            self.recent_media.clear()
+        if self.get_recent_media_max() <= 0:
+            return file
 
         while file in self.recent_media:
-            get_media_method = self.determine_get_media_method()
-            file = await get_media_method()
-        
+            file = await self._get_random_media()
+                
         self.recent_media.append(file)
+
+        while len(self.recent_media) > self.get_recent_media_max():
+            self.recent_media.pop(0)
 
         return file
 
-    def determine_get_media_method(self):
-        get_media_method = None
-        if (not self.api_coroutine or self.should_try_pull_from_local()) and self.command_has_local_files():
-            get_media_method = lambda: self.get_random_local_file_for_command()
-        else:
-            get_media_method = self.api_coroutine
-        
-        if not get_media_method:
-            raise ApplicationHandlerStop()
-        
-        return asyncio.coroutine(get_media_method)
+    def get_recent_media_max(self) -> int:
+        pass
 
-    def command_has_local_files(self):
-        return self.get_command_local_file_count() > 0
+    def has_media(self) -> bool:
+        pass
 
-    def get_command_local_file_count(self):
-        if not os.path.exists(self.get_media_folder_path()):
+    async def _get_random_media(self) -> str:
+        pass
+    
+class MultiMediaRetriever(MediaRetriever):
+    def __init__(self, media_retrieve_routines: list[MediaRetriever]):
+        super().__init__()
+        self.media_retrieve_routines = media_retrieve_routines
+
+    def get_recent_media_max(self) -> int:
+        return sum([mr.get_recent_media_max() for mr in self.media_retrieve_routines])
+    
+    def has_media(self) -> bool:
+        return any([mr.has_media() for mr in self.media_retrieve_routines])
+
+    async def _get_random_media(self):
+        return await self.__get_media_retriever().get_random_media()
+
+    def __get_media_retriever(self) -> MediaRetriever:
+        retrievers_with_media = [mr for mr in self.media_retrieve_routines if mr.has_media()]
+        return retrievers_with_media[random.randint(0, len(retrievers_with_media)-1)]
+    
+class ApiRoutineMediaRetrieve(MediaRetriever):
+    def __init__(self, api_coroutine, recent_media_max=5):
+        super().__init__()
+        self.api_coroutine = asyncio.coroutine(api_coroutine)
+        self.recent_media_max = recent_media_max
+
+    def get_recent_media_max(self) -> int:
+        return self.recent_media_max
+    
+    def has_media(self) -> bool:
+        return True
+
+    async def _get_random_media(self) -> str:
+        return await self.api_coroutine()
+    
+class LocalFileMediaRetriever(MediaRetriever): 
+    def __init__(self, media_folder, recent_media_max=5):
+        super().__init__()
+        self.media_folder = 'media/' + media_folder + '/'
+        self.recent_media_max = recent_media_max
+
+    def get_recent_media_max(self) -> int:
+        file_count = max(self.__get_local_file_count(), 1)
+        if file_count == 1:
             return 0
         
-        media_folder = self.get_media_folder_path()
-        return len(os.listdir(media_folder))
+        return max(min(file_count / 2, self.recent_media_max), 0)
 
-    def should_try_pull_from_local(self):
-        return random.randint(0, 1)==1
+    async def _get_random_media(self) -> str:
+        files = os.listdir(self.media_folder)
+        return self.media_folder + files[random.randint(0, len(files)-1)]
 
-    def get_random_local_file_for_command(self):
-        media_folder = self.get_media_folder_path()
-        files = os.listdir(media_folder)
-        return media_folder + files[random.randint(0, len(files)-1)]
+    def has_media(self) -> bool:
+        return self.__get_local_file_count() > 0
     
-    def get_file_extension(self, filename):
-        return os.path.splitext(filename)[-1]
-    
-    def get_media_folder_path(self):
-        return 'media/' + self.command_name + '/'
+    def __get_local_file_count(self):
+        if not os.path.exists(self.media_folder):
+            return 0
+        
+        return len(os.listdir(self.media_folder))
