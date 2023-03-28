@@ -8,6 +8,7 @@ Check the bot in [here](https://t.me/kewlcidsbot).
 - `/tips` responds with a random tip from /r/LifeProTips or /r/YouShouldKnow
 - `/javi` responds with a javi
 - `/midge` responds with a midge
+- `/shrug` responds with a ¯\\\_(ツ)_/¯
 
 ### Adding photos/videos to a command
 Additional photos or video can be added to commands by sending a photo or video and putting the command in the caption
