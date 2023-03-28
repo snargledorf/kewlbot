@@ -86,6 +86,9 @@ async def tips(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_message(chat_id=update.effective_chat.id, parse_mode='MarkdownV2', text=message)
 
+async def shrug(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('¯\_(ツ)_/¯')
+
 async def boop(update: Update, context: ContextTypes.DEFAULT_TYPE):   
     await send_random_media(boop_api, update, context)
 
@@ -167,6 +170,7 @@ commands = [
     CommandHandler('tips', tips),
     CommandHandler('javi', javi),
     CommandHandler('midge', midge),
+    CommandHandler('shrug', shrug),
     MessageHandler(Regex(r'[Hh]a haa+\!?'), hahaa)
 ]
 
