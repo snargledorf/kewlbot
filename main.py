@@ -1,4 +1,5 @@
 import os
+import re
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, ApplicationHandlerStop
@@ -13,6 +14,8 @@ import MediaApi
 
 from datetime import datetime
 from bs4 import BeautifulSoup
+
+subreddit_regex = r'(?:\s|^)\/[r]\/(\w+)(?:\s|$)'
 
 image_extensions = ['.jpg','.jpeg','.png']
 video_extensions = ['.mp4','.gif', '.mov']
@@ -77,9 +80,9 @@ async def tips(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text='Finding you a helpful tip...')
         
     lpt = await get_random_lpt()
-    message = """*[{}]({})*
+    message = f"""*[{escape_markdown(lpt.title, 2)}]({lpt.permalink})*
 
-{}""".format(escape_markdown(lpt.title, 2), lpt.permalink, escape_markdown(lpt.content, 2))
+{escape_markdown(lpt.content, 2)}"""
     
     if len(message) > 1000:
         message = message[:977] + '\.\.\.'
@@ -103,6 +106,16 @@ async def midge(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def hahaa(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await send_random_media(hahaa_api, update, context)
+
+async def subreddit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    subreddit_name_matches = re.search(subreddit_regex, update.message.text)
+
+    if subreddit_name_matches is None:
+        return
+
+    for subreddit_name_match in subreddit_name_matches:
+        subreddit_name = subreddit_name_match.group(1)
+        await update.message.reply_text(f'https://www.reddit.com/r/{subreddit_name}/')
                                    
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! If you /boop me, I'll send you a cute doggo!")
@@ -171,7 +184,8 @@ commands = [
     CommandHandler('javi', javi),
     CommandHandler('midge', midge),
     CommandHandler('shrug', shrug),
-    MessageHandler(Regex(r'[Hh]a haa+\!?'), hahaa)
+    MessageHandler(Regex(r'[Hh]a haa+\!?'), hahaa),
+    MessageHandler(Regex(subreddit_regex), subreddit)
 ]
 
 boop_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_dog_url), MediaApi.LocalFileMediaRetriever('boop')])
