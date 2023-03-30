@@ -208,7 +208,6 @@ boop_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_ra
 carrot_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_horse_picture_url, 15), MediaApi.LocalFileMediaRetriever(get_media_subdir_path('carrot'))])
 javi_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(lambda: 'https://media.tenor.com/iEaaKez7nDcAAAAC/smiling-javi-gutierrez.gif', 0), MediaApi.LocalFileMediaRetriever(get_media_subdir_path('javi'))])
 midge_api = MediaApi.LocalFileMediaRetriever(get_media_subdir_path('midge'))
-
 hahaa_api = MediaApi.LocalFileMediaRetriever(get_media_subdir_path('hahaa'))
 
 if __name__ == '__main__':
