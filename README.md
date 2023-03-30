@@ -13,6 +13,12 @@ Check the bot in [here](https://t.me/kewlcidsbot).
 ### Adding photos/videos to a command
 Additional photos or video can be added to commands by sending a photo or video and putting the command in the caption
 
+### Subreddit name auto-linking
+If a subreddit name is detected in a message, the bot will respond with a link to the subreddit.
+- Only subreddit names in the /r/\<subname\> or r/\<subname\> format are recognized
+- Multiple subreddit names in a message are supported and will be sent as seperate links
+- Full reddit urls are ignored (IE. https://www.reddit.com/r/TelegramBots/)
+
 # Requirements
 - python 3
 - [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot)
