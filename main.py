@@ -29,7 +29,15 @@ current_term_start_time = datetime.now()
 current_tickets_count = 0
 
 def is_debug_mode():
-    return 'VSCODE_DEBUG_MODE' in os.environ and os.environ['VSCODE_DEBUG_MODE'] == "true";
+    return 'VSCODE_DEBUG_MODE' in os.environ and os.environ['VSCODE_DEBUG_MODE'] == "true"
+
+def get_media_subdir_path(subdir):
+    return get_media_dir_path() + f'/{subdir}/'
+
+def get_media_dir_path():
+    if 'KEWLBOT_MEDIA_FOLDER' in os.environ:
+        return os.environ['KEWLBOT_MEDIA_FOLDER']
+    return 'media'
 
 def try_take_ticket():
     global current_term_start_time, current_tickets_count
@@ -134,7 +142,7 @@ async def addCommandMedia(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         file = await update.message.video.get_file()
 
-    download_folder_path = 'media' + update.message.caption + '/'
+    download_folder_path = get_media_dir_path() + update.message.caption + '/'
     if not os.path.exists(download_folder_path):
         os.mkdir(download_folder_path)
 
@@ -196,15 +204,15 @@ commands = [
     MessageHandler(Regex(subreddit_regex), subreddit)
 ]
 
-boop_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_dog_url), MediaApi.LocalFileMediaRetriever('boop')])
-carrot_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_horse_picture_url, 15), MediaApi.LocalFileMediaRetriever('carrot')])
-javi_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(lambda: 'https://media.tenor.com/iEaaKez7nDcAAAAC/smiling-javi-gutierrez.gif', 0), MediaApi.LocalFileMediaRetriever('javi')])
-midge_api = MediaApi.LocalFileMediaRetriever('midge')
-hahaa_api = MediaApi.LocalFileMediaRetriever('hahaa')
+boop_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_dog_url), MediaApi.LocalFileMediaRetriever(get_media_subdir_path('boop'))])
+carrot_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_horse_picture_url, 15), MediaApi.LocalFileMediaRetriever(get_media_subdir_path('carrot'))])
+javi_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(lambda: 'https://media.tenor.com/iEaaKez7nDcAAAAC/smiling-javi-gutierrez.gif', 0), MediaApi.LocalFileMediaRetriever(get_media_subdir_path('javi'))])
+midge_api = MediaApi.LocalFileMediaRetriever(get_media_subdir_path('midge'))
+
+hahaa_api = MediaApi.LocalFileMediaRetriever(get_media_subdir_path('hahaa'))
 
 if __name__ == '__main__':
-    application = ApplicationBuilder().token(my_secrets.telegram_bot_token).build()
-    
-    application.add_handlers(commands)
-    
+    print(f'Media folder: {get_media_dir_path()}')
+    application = ApplicationBuilder().token(my_secrets.telegram_bot_token).build()    
+    application.add_handlers(commands)    
     application.run_polling()

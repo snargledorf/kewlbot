@@ -74,7 +74,7 @@ class ApiRoutineMediaRetrieve(MediaRetriever):
 class LocalFileMediaRetriever(MediaRetriever): 
     def __init__(self, media_folder, recent_media_max=5):
         super().__init__()
-        self.media_folder = 'media/' + media_folder + '/'
+        self.media_folder = media_folder
         self.recent_media_max = recent_media_max
 
     def get_recent_media_max(self) -> int:
