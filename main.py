@@ -15,7 +15,7 @@ import MediaApi
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-subreddit_regex = r'(?:\s|^)\/[r]\/(\w+)(?:\s|$)'
+subreddit_regex = r'(?:^|\s)\/?[r]\/(\w+)\b'
 
 image_extensions = ['.jpg','.jpeg','.png']
 video_extensions = ['.mp4','.gif', '.mov']
@@ -108,11 +108,7 @@ async def hahaa(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await send_random_media(hahaa_api, update, context)
 
 async def subreddit(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    subreddit_name_matches = re.search(subreddit_regex, update.message.text)
-
-    if subreddit_name_matches is None:
-        return
-
+    subreddit_name_matches = re.finditer(subreddit_regex, update.message.text)
     for subreddit_name_match in subreddit_name_matches:
         subreddit_name = subreddit_name_match.group(1)
         await update.message.reply_text(f'https://www.reddit.com/r/{subreddit_name}/')
