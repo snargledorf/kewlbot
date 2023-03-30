@@ -9,6 +9,7 @@ Check the bot in [here](https://t.me/kewlcidsbot).
 - `/javi` responds with a javi
 - `/midge` responds with a midge
 - `/shrug` responds with a ¯\\\_(ツ)_/¯
+- `/changelog` responds with latest CHANGELOG.md
 
 ### Adding photos/videos to a command
 Additional photos or video can be added to commands by sending a photo or video and putting the command in the caption

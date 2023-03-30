@@ -1,12 +1,12 @@
 import os
 import re
+import aiofiles
+import aiohttp
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, ApplicationHandlerStop
 from telegram.ext.filters import Caption, PHOTO, VIDEO, Regex
 from telegram.helpers import escape_markdown
-
-import aiohttp
 
 import my_secrets
 from life_pro_tips import get_random_lpt
@@ -14,6 +14,8 @@ import MediaApi
 
 from datetime import datetime
 from bs4 import BeautifulSoup
+    
+changelog_file_path = 'CHANGELOG.md'
 
 subreddit_regex = r'(?:^|\s)\/?[r]\/(\w+)\b'
 
@@ -112,6 +114,15 @@ async def subreddit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for subreddit_name_match in subreddit_name_matches:
         subreddit_name = subreddit_name_match.group(1)
         await update.message.reply_text(f'https://www.reddit.com/r/{subreddit_name}/')
+
+async def changelog(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async with aiofiles.open(changelog_file_path, mode='r') as changelog_file:
+        changelog_contents = await changelog_file.read(1000)
+
+    if len(changelog_contents) == 1000:
+        changelog_contents = changelog_contents[:997] + '\.\.\.'
+
+    await update.message.reply_text(changelog_contents)
                                    
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! If you /boop me, I'll send you a cute doggo!")
@@ -180,6 +191,7 @@ commands = [
     CommandHandler('javi', javi),
     CommandHandler('midge', midge),
     CommandHandler('shrug', shrug),
+    CommandHandler('changelog', changelog),
     MessageHandler(Regex(r'[Hh]a haa+\!?'), hahaa),
     MessageHandler(Regex(subreddit_regex), subreddit)
 ]
