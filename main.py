@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup
 changelog_file_path = 'CHANGELOG.md'
 
 subreddit_regex = r'(?:^|\s)\/?[r]\/(\w+)\b'
+hahaa_regex = r'[Hh]a [Hh]aa+\!?'
 
 image_extensions = ['.jpg','.jpeg','.png']
 video_extensions = ['.mp4','.gif', '.mov']
@@ -200,7 +201,7 @@ commands = [
     CommandHandler('midge', midge),
     CommandHandler('shrug', shrug),
     CommandHandler('changelog', changelog),
-    MessageHandler(Regex(r'[Hh]a haa+\!?'), hahaa),
+    MessageHandler(Regex(hahaa_regex), hahaa),
     MessageHandler(Regex(subreddit_regex), subreddit)
 ]
 
