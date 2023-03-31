@@ -59,7 +59,7 @@ class MultiMediaRetriever(MediaRetriever):
 class ApiRoutineMediaRetrieve(MediaRetriever):
     def __init__(self, api_coroutine, recent_media_max=5):
         super().__init__()
-        self.api_coroutine = asyncio.coroutine(api_coroutine)
+        self.api_coroutine = api_coroutine
         self.recent_media_max = recent_media_max
 
     def get_recent_media_max(self) -> int:

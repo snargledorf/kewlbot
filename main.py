@@ -112,6 +112,9 @@ async def carrot(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def javi(update: Update, context: ContextTypes.DEFAULT_TYPE):    
     await send_random_media(javi_api, update, context)
 
+async def get_javi_meme_url():
+    return 'https://media.tenor.com/iEaaKez7nDcAAAAC/smiling-javi-gutierrez.gif'
+
 async def midge(update: Update, context: ContextTypes.DEFAULT_TYPE):   
     await send_random_media(midge_api, update, context)
 
@@ -207,7 +210,7 @@ commands = [
 
 boop_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_dog_url), MediaApi.LocalFileMediaRetriever(get_media_subdir_path('boop'))])
 carrot_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_random_horse_picture_url, 15), MediaApi.LocalFileMediaRetriever(get_media_subdir_path('carrot'))])
-javi_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(lambda: 'https://media.tenor.com/iEaaKez7nDcAAAAC/smiling-javi-gutierrez.gif', 0), MediaApi.LocalFileMediaRetriever(get_media_subdir_path('javi'))])
+javi_api = MediaApi.MultiMediaRetriever([MediaApi.ApiRoutineMediaRetrieve(get_javi_meme_url, 0), MediaApi.LocalFileMediaRetriever(get_media_subdir_path('javi'))])
 midge_api = MediaApi.LocalFileMediaRetriever(get_media_subdir_path('midge'))
 hahaa_api = MediaApi.LocalFileMediaRetriever(get_media_subdir_path('hahaa'))
 
