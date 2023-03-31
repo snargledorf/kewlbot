@@ -8,7 +8,6 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Messa
 from telegram.ext.filters import Caption, PHOTO, VIDEO, Regex
 from telegram.helpers import escape_markdown
 
-import my_secrets
 from life_pro_tips import get_random_lpt
 import MediaApi
 
@@ -28,6 +27,9 @@ max_tickets_per_term = 10
 term_length_minutes = 10
 current_term_start_time = datetime.now()
 current_tickets_count = 0
+
+def get_telegram_bot_token():
+    return os.environ['TELEGRAM_BOT_TOKEN']
 
 def is_debug_mode():
     return 'VSCODE_DEBUG_MODE' in os.environ and os.environ['VSCODE_DEBUG_MODE'] == "true"
@@ -216,6 +218,6 @@ hahaa_api = MediaApi.LocalFileMediaRetriever(get_media_subdir_path('hahaa'))
 
 if __name__ == '__main__':
     print(f'Media folder: {get_media_dir_path()}')
-    application = ApplicationBuilder().token(my_secrets.telegram_bot_token).build()    
+    application = ApplicationBuilder().token(get_telegram_bot_token()).build()    
     application.add_handlers(commands)    
     application.run_polling()
