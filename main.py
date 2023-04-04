@@ -10,6 +10,7 @@ from telegram.helpers import escape_markdown
 
 from life_pro_tips import get_random_lpt
 import MediaApi
+import OpenAI
 
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -42,7 +43,7 @@ def get_media_dir_path():
         return os.environ['KEWLBOT_MEDIA_FOLDER']
     return 'media'
 
-def try_take_ticket():
+def try_take_ticket(tickets_per_term=max_tickets_per_term):
     global current_term_start_time, current_tickets_count
 
     if is_debug_mode():
@@ -55,7 +56,7 @@ def try_take_ticket():
         current_tickets_count = 0
         current_term_start_time = datetime.now()
 
-    if (current_tickets_count is max_tickets_per_term):
+    if (current_tickets_count >= tickets_per_term):
         return False
     
     current_tickets_count+=1
@@ -137,6 +138,17 @@ async def changelog(update: Update, context: ContextTypes.DEFAULT_TYPE):
         changelog_contents = changelog_contents[:997] + '\.\.\.'
 
     await update.message.reply_text(changelog_contents)
+    
+async def imagegen(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if try_take_ticket(5) is False:
+        await send_rate_limit_response(update, context)
+        return
+    
+    try:
+        image_url = await OpenAI.generate_image(update.message.text)
+        await update.message.reply_photo(image_url)
+    except Exception as err:
+        await update.message.reply_text(err)
                                    
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hello! If you /boop me, I'll send you a cute doggo!")
@@ -205,6 +217,7 @@ commands = [
     CommandHandler('javi', javi),
     CommandHandler('midge', midge),
     CommandHandler('shrug', shrug),
+    CommandHandler('imagegen', imagegen),
     CommandHandler('changelog', changelog),
     MessageHandler(Regex(hahaa_regex), hahaa),
     MessageHandler(Regex(subreddit_regex), subreddit)

@@ -9,6 +9,8 @@ Check the bot in [here](https://t.me/kewlcidsbot).
 - `/javi` responds with a javi
 - `/midge` responds with a midge
 - `/shrug` responds with a ¯\\\_(ツ)_/¯
+- `/imagegen` send a prompt and a new image will be generated
+  - Rate limit is stricter as this one will eventually cost money
 - `/changelog` responds with latest CHANGELOG.md
 
 ### Adding photos/videos to a command
@@ -24,18 +26,19 @@ If a subreddit name is detected in a message, the bot will respond with a link t
 - python 3
 - [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot)
 - [PRAW](https://github.com/praw-dev/praw)
+- [OpenAI](https://github.com/openai/openai-python)
 - [PyInstaller](https://github.com/pyinstaller/pyinstaller) (Optional)
 
 # Steps
-1. Install the library.
+1. Install dependancies
 ```
-pip install python-telegram-bot
-pip install praw
+pip install -r requirements.txt
 ```
 
-2. Create a my_secrets.py
-``` python
-telegram_bot_token = '<bot_token>'
+2. Set the required environment variables
+``` 
+TELEGRAM_BOT_TOKEN
+OPENAI_API_KEY
 ```
 
 3. Create a praw.ini
